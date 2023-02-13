@@ -1,4 +1,4 @@
-# WORK IN PROGRESS
+# WORK IN PROGRESS - DO NOT USE
 
 ![# Capsule Farmer Evolved](https://raw.githubusercontent.com/LeagueOfPoro/CapsuleFarmerEvolved/master/.github/banner.png)
 <!-- Font for banner above by Riot Games BeaufortForLoL https://brand.riotgames.com/en-us/league-of-legends/typography/ -->
