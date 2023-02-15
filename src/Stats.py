@@ -1,8 +1,7 @@
 from datetime import datetime
 
 class Stats:
-    def __init__(self, farmThreads) -> None:
-        self.farmThreads = farmThreads
+    def __init__(self) -> None:
         self.accountData = {}
 
     def initNewAccount(self, accountName: str):
@@ -17,14 +16,14 @@ class Stats:
         }
 
     def update(self, accountName: str, newDrops: int = 0, liveMatches: str = "", lastDropleague: str = None):
-        self.accountData[accountName]["lastCheck"] = datetime.now().strftime("%H:%M:%S %d/%m")
+        self.accountData[accountName]["lastCheck"] = datetime.now().strftime("%H:%M:%S")
         self.accountData[accountName]["liveMatches"] = liveMatches
         if newDrops > 0:
             self.accountData[accountName]["totalDrops"] += newDrops
             if lastDropleague:
-                self.accountData[accountName]["lastDrop"] = datetime.now().strftime("%H:%M:%S %d/%m") + f' ({lastDropleague})'
+                self.accountData[accountName]["lastDrop"] = datetime.now().strftime("%H:%M %d/%m") + f' ({lastDropleague})'
             else:
-                self.accountData[accountName]["lastDrop"] = datetime.now().strftime("%H:%M:%S %d/%m")
+                self.accountData[accountName]["lastDrop"] = datetime.now().strftime("%H:%M %d/%m")
 
     def updateStatus(self, accountName: str, msg: str):
         self.accountData[accountName]["status"] = msg

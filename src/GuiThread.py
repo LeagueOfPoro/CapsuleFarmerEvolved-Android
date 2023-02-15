@@ -1,58 +1,56 @@
-from threading import Thread
-from time import sleep
-from rich.live import Live
-from rich.table import Table
-from rich.console import Console
+import re
+from functools import partial
 
-class GuiThread(Thread):
-    """
-    A thread that creates a capsule farm for a given account
-    """
+from kivy.clock import Clock
+from kivy.core.window import Window
+from kivy.metrics import sp
+from kivy.uix.anchorlayout import AnchorLayout
+from kivymd.app import MDApp
+from kivymd.uix.datatables import MDDataTable
 
-    def __init__(self, log, config, stats, locks):
-        """
-        Initializes the FarmThread
 
-        :param log: Logger object
-        :param config: Config object
-        :param stats: Stats, Stats object
-        """
-        super().__init__()
-        self.log = log
-        self.config = config
+class GuiThread(MDApp):
+    def __init__(self, stats, **kwargs):
+        super().__init__(**kwargs)
         self.stats = stats
-        self.locks = locks
-    
-    def generateTable(self):
-        table = Table()
-        table.add_column("Account")
-        table.add_column("Status")
-        table.add_column("Live matches")
-        table.add_column("Heartbeat")
-        table.add_column("Last drop")
-        table.add_column("Drops")
+        print(self.stats.accountData)
 
+    def build(self):
+        window_sizes = Window.size
+        self.theme_cls.theme_style = "Dark"
+        self.theme_cls.primary_palette = "Orange"
+        layout = AnchorLayout()
+        self.dataTable = MDDataTable(
+            # size_hint=(0.95, 0.6),
+            column_data=[
+                ("Account", sp(20)),
+                ("Status", sp(20)),
+                ("Live matches", sp(50)),
+                ("Heartbeat", sp(20)),
+                ("Last drop", sp(23)),
+                ("Drops", sp(10)),
+            ],
+
+            row_data=self.__getRowData(),
+        )
+        layout.add_widget(self.dataTable)
+        Clock.schedule_interval(partial(self.updateData, self), 3)
+        return layout
+
+    def updateData(self, *largs):
+        
+        self.dataTable.update_row_data(self.dataTable, self.__getRowData())
+
+    def __getRowData(self) -> list:
+        rowData = []
         for acc in self.stats.accountData:
-            status = self.stats.accountData[acc]["status"]
-            table.add_row(f"{acc}", f"{status}", f"{self.stats.accountData[acc]['liveMatches']}", f"{self.stats.accountData[acc]['lastCheck']}", f"{self.stats.accountData[acc]['lastDrop']}", f"{self.stats.accountData[acc]['totalDrops']}")
-            # table.add_row(f"{acc}", f"{status}", f"{self.stats.accountData[acc]['liveMatches']}", f"{self.stats.accountData[acc]['lastCheck']}")
-        return table
+            status = re.sub(r'^.*?\]', "", self.stats.accountData[acc]['status'])
+            rowData.append((acc,
+                            status,
+                            self.stats.accountData[acc]['liveMatches'],
+                            self.stats.accountData[acc]['lastCheck'],
+                            self.stats.accountData[acc]['lastDrop'],
+                            self.stats.accountData[acc]['totalDrops']))
+        return rowData
 
-    def run(self):
-        """
-        Report the status of all accounts
-        """
-        console = Console(force_terminal=True)
-        with Live(self.generateTable(), auto_refresh=False, console=console) as live:
-            while True:
-                live.update(self.generateTable())
-                sleep(1)
-                self.locks["refreshLock"].acquire()
-                live.refresh()
-                self.locks["refreshLock"].release()
-                
-    def stop(self):
-        """
-        Try to stop gracefully
-        """
-        pass
+

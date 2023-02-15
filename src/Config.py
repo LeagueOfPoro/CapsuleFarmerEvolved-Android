@@ -3,6 +3,7 @@ import yaml
 from yaml.parser import ParserError
 from rich import print
 from pathlib import Path
+from android.storage import app_storage_path
 
 from Exceptions.InvalidCredentialsException import InvalidCredentialsException
 
@@ -37,6 +38,7 @@ class Config:
                     raise InvalidCredentialsException                    
                 self.debug = config.get("debug", False)
                 self.connectorDrops = config.get("connectorDropsUrl", "")
+                self.disableGui = config.get("disableGui", False)
         except FileNotFoundError as ex:
             print(f"[red]CRITICAL ERROR: The configuration file cannot be found at {configPath}\nHave you extacted the ZIP archive and edited the configuration file?")
             print("Press any key to exit...")
@@ -89,3 +91,7 @@ class Config:
         if Path("config/config.yaml").exists():
             return Path("config/config.yaml")
         return configPath
+    
+    @staticmethod
+    def generateConfig(username, password)
+
